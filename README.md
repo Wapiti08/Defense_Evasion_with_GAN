@@ -1,2 +1,2 @@
-# Analysis_Ransome_with_GAN
-The project of Ransomware Detection with GAN
+# Analysis-on-GAN
+This is my project about Ransome Detection using GAN

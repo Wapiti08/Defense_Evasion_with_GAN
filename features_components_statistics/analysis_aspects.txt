@@ -1,0 +1,14 @@
+Summary
+    Static Analysis
+    Extracted Artifacts
+    Behavioral Analysis
+    Network Analysis
+    Dropped Files
+    Dropped Buffers
+    Process Memory
+    Compare Analysis
+    Export Analysis
+    Reboot Analysis
+    Options
+    Feedback
+

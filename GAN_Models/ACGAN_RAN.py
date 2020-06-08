@@ -5,21 +5,19 @@ from tensorflow.keras.layers import Maximum, Concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 
-from sklearn.ensemble import BaggingClassifier
-from sklearn.ensemble import RandomForestClassifier 
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import RidgeClassifierCV, SGDClassifier
+from sklearn.neural_network import MLPClassifier
+from Ensemble_Classifiers import Ensemble_Classifier
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import pandas as pd
-
 global seed
+
 seed = 0
-
-
 
 class MalGAN():
     def __init__(self, blackbox='RF', same_train_data=1, data_path='./dataset/training_data/features_ran_part.pkl'):
@@ -28,7 +26,6 @@ class MalGAN():
         self.generator_layers = [self.apifeature_dims+self.z_dims, 256, 512, 1024 , self.apifeature_dims]
         # self.substitute_detector_layers = [self.apifeature_dims, 512, 512, 512, 1]
         self.substitute_detector_layers = [self.apifeature_dims, 512, 512, 1]
-        # self.substitute_detector_layers = [self.apifeature_dims, 512, 1]
         self.blackbox = blackbox       
         optimizer = Adam(lr=0.0002, beta_1=0.5)
         self.data_path = data_path
@@ -62,15 +59,14 @@ class MalGAN():
     
 
     def build_blackbox_detector(self):
-        if self.blackbox in ['Bag']:
-            blackbox_detector = BaggingClassifier(base_estimator=SVC(), n_estimators=10, random_state=seed)
-        elif self.blackbox in ['RF']:
-            blackbox_detector = RandomForestClassifier(max_depth=2, random_state=seed)
-        elif self.blackbox in ['AdaBoost']:
-            blackbox_detector = AdaBoostClassifier(n_estimators=100, random_state=seed)
-        elif self.blackbox in ['GB']:
-            blackbox_detector = GradientBoostingClassifier(n_estimators=100, random_state=seed)
-
+        if self.blackbox in ['SVM']:
+            blackbox_detector = SVC(kernel = 'linear')
+        elif self.blackbox in ['MLP']:
+            blackbox_detector = MLPClassifier(hidden_layer_sizes=(50,), max_iter=50, alpha=1e-4,
+                                                  solver='sgd', verbose=0, tol=1e-4, random_state=seed,
+                                                  learning_rate_init=.1)
+        elif self.blackbox in ['Ensem']:
+            blackbox_detector = Ensemble_Classifier()
         return blackbox_detector
 
     def build_generator(self):
@@ -108,8 +104,8 @@ class MalGAN():
 
         # Load and Split the dataset
         (xmal, ymal), (xben, yben) = self.load_data()
-        xtrain_mal, xtest_mal, ytrain_mal, ytest_mal = train_test_split(xmal.values, ymal.values, test_size=0.20)
-        xtrain_ben, xtest_ben, ytrain_ben, ytest_ben = train_test_split(xben.values, yben.values, test_size=0.20)
+        xtrain_mal, xtest_mal, ytrain_mal, ytest_mal = train_test_split(xmal.values, ymal.values, test_size=0.50)
+        xtrain_ben, xtest_ben, ytrain_ben, ytest_ben = train_test_split(xben.values, yben.values, test_size=0.50)
 
         bl_xtrain_mal, bl_ytrain_mal, bl_xtrain_ben, bl_ytrain_ben = xtrain_mal, ytrain_mal, xtrain_ben, ytrain_ben
 
@@ -187,8 +183,8 @@ if __name__ == '__main__':
     D_loss_dict, Acc_dict, G_loss_dict = {}, {}, {}
 
     # load the classifier
-    for classifier in ['Bag', 'RF', 'AdaBoost', 'GB']: 
-        print('\n[+] Training the model with {} classifier\n'.format(classifier))
+    for classifier in [ 'SVM', 'MLP', 'Ensem']: 
+        print('[+] \nTraining the model with {} classifier\n'.format(classifier))
         malgan = MalGAN(blackbox=classifier)
         d_loss, acc, g_loss = malgan.train(epochs=50, batch_size=32)
 
@@ -203,31 +199,3 @@ if __name__ == '__main__':
     print(Acc_dict)
     print('=====================')
     print(G_loss_dict)
-
-'''
-Test on ensemble classifiers:
-
-Test1:
-    =====================
-    {'Bag': 0.0009752021333042649, 'RF': 0.0005696318921764032, 'AdaBoost': 0.00045098867940396303, 'GB': 0.0005312355951900827}
-    =====================
-    {'Bag': 100.0, 'RF': 100.0, 'AdaBoost': 100.0, 'GB': 100.0}
-    =====================
-    {'Bag': 6.450652108469512e-06, 'RF': 1.4073579222895205e-05, 'AdaBoost': 1.1061413715651724e-05, 'GB': 2.3088181478669867e-05}
-    
-    self.generator_layers = [self.apifeature_dims+self.z_dims, 256, 512, 1024 , self.apifeature_dims]
-    self.substitute_detector_layers = [self.apifeature_dims, 512, 1]
-
-
-Test2:
-    =====================
-    {'Bag': 8.22592260192323e-05, 'RF': 0.00233113380636496, 'AdaBoost': 0.0004080970820723451, 'GB': 0.0006035762362444075}
-    =====================
-    {'Bag': 100.0, 'RF': 100.0, 'AdaBoost': 100.0, 'GB': 100.0}
-    =====================
-    {'Bag': 3.5508924156602006e-06, 'RF': 8.965355846157763e-06, 'AdaBoost': 9.755195605976041e-06, 'GB': 1.797146614990197e-05}
-    
-    self.generator_layers = [self.apifeature_dims+self.z_dims, 256, 512, 1024 , self.apifeature_dims]
-    self.substitute_detector_layers = [self.apifeature_dims, 512, 512, 1]
-
-'''

@@ -109,8 +109,8 @@ class MalGAN():
 
         # Load and Split the dataset
         (xmal, ymal), (xben, yben) = self.load_data()
-        xtrain_mal, xtest_mal, ytrain_mal, ytest_mal = train_test_split(xmal.values, ymal.values, test_size=0.20)
-        xtrain_ben, xtest_ben, ytrain_ben, ytest_ben = train_test_split(xben.values, yben.values, test_size=0.20)
+        xtrain_mal, xtest_mal, ytrain_mal, ytest_mal = train_test_split(xmal.values, ymal.values, test_size=0.50)
+        xtrain_ben, xtest_ben, ytrain_ben, ytest_ben = train_test_split(xben.values, yben.values, test_size=0.50)
 
         bl_xtrain_mal, bl_ytrain_mal, bl_xtrain_ben, bl_ytrain_ben = xtrain_mal, ytrain_mal, xtrain_ben, ytrain_ben
 
@@ -137,7 +137,7 @@ class MalGAN():
   
                 xmal_batch = xtrain_mal[idx_mal]
                 
-                noise = np.random.uniform(0, 1, (batch_size, self.z_dims))
+                noise = np.random.normal(0, 1, (batch_size, self.z_dims))
                 
                 idx_ben = np.random.randint(0, xmal_batch.shape[0], batch_size)
                 
@@ -204,6 +204,7 @@ if __name__ == '__main__':
     print(Acc_dict)
     print('=====================')
     print(G_loss_dict)
+    
 '''
 Test on layers:
 
@@ -232,6 +233,9 @@ Test1:
     {'MLP': 4.621968855644809e-06, 'SGD': 1.6674750895617763e-06, 'RC': 2.969875276903622e-05, 'DT': 3.61568781954702e-05, 'SVM': 9.004337698570453e-06}
 
 Test2:
+    self.generator_layers = [self.apifeature_dims+self.z_dims, 256, 512, 1024 , self.apifeature_dims]
+    self.substitute_detector_layers = [self.apifeature_dims, 512, 1]
+
     {'MLP': 0.002002428260311717, 'SGD': 0.0006275568621276761, 'RC': 0.0008978054956969572, 'DT': 0.0006781554411645629, 'SVM': 0.0026881536255132232}
     =====================
     {'MLP': 100.0, 'SGD': 100.0, 'RC': 100.0, 'DT': 100.0, 'SVM': 100.0}

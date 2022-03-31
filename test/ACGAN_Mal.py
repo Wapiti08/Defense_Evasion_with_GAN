@@ -1,14 +1,10 @@
-from tensorflow.keras.layers import Input
-from tensorflow.keras.layers import Dense 
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import Maximum, Concatenate
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+from keras.layers import Input, Dense, Activation
+from keras.layers import Maximum, Concatenate
+from keras.models import Model
+from keras.optimizers import Adam
 
 from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import RidgeClassifierCV, SGDClassifier
-from sklearn.neural_network import MLPClassifier
+
 from Ensemble_Classifiers import Ensemble_Classifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import Normalizer

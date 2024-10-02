@@ -5,6 +5,7 @@
 ![GAN](https://img.shields.io/badge/GAN-GAN-redgreen.svg)
 ![Ransomware](https://img.shields.io/badge/Ransomware-Locky%20Crypto-redgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT3.0-green.svg)
+[![DOI](https://zenodo.org/badge/264062663.svg)](https://doi.org/10.5281/zenodo.13881242)
 
 ---
 
